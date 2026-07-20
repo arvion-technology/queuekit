@@ -1,0 +1,28 @@
+{
+  "name": "queuekit",
+  "version": "1.0.0",
+  "description": "A background job queue you can actually debug: durable storage, exponential backoff with jitter, concurrency control, scheduled and recurring jobs, dead-letter queue and a live dashboard.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "Arvion Technologies <hello@arviontech.net> (https://arviontech.net)",
+  "homepage": "https://arvion-technology.github.io/labs/demos/queuekit/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvion-technology/queuekit.git"
+  },
+  "scripts": {
+    "test": "node --test",
+    "demo": "node scripts/serve.mjs . 4173",
+    "shot": "node scripts/shot.mjs 1440 900 docs/screenshot.png",
+    "shot:2": "node scripts/shot.mjs 1440 900 docs/screenshot-2.png #dlq",
+    "verify": "node --test test/ && node scripts/serve-check.mjs",
+    "cli": "node bin/queuekit.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "queuekit": "bin/queuekit.mjs"
+  }
+}
