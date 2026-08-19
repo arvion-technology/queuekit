@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>QueueKit — durable background jobs with retries and a DLQ</title>
+  <meta name="description" content="A durable job queue with atomic claim, exponential backoff with jitter, concurrency and rate limits, recurring jobs and a dead-letter queue you can replay." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b0f1a'/><text x='16' y='22' font-family='sans-serif' font-size='16' font-weight='700' fill='%23f5c26b' text-anchor='middle'>A</text></svg>" />
+  <link rel="stylesheet" href="arvion.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="aurora"></div>
+  <div class="grid-lines"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">A</span>
+        <span>
+          <span class="brand-word">ARVION <b>/</b> QUEUEKIT</span>
+          <span class="brand-sub" style="display:block">Durable background jobs</span>
+        </span>
+      </a>
+      <div class="tabs" id="view-tabs" role="tablist" style="margin-left:22px">
+        <a class="tab active" href="#fleet" data-view="fleet" role="tab">Fleet</a>
+        <a class="tab" href="#dlq" data-view="dlq" role="tab">Dead letters <span class="badge red" id="dlq-tab-count" style="margin-left:6px">0</span></a>
+      </div>
+      <span class="spacer"></span>
+      <div class="chaos-control">
+        <div>
+          <div class="chaos-label">Chaos mode</div>
+          <div class="small muted">fail 30% of jobs</div>
+        </div>
+        <span class="switch" id="chaos-switch" role="switch" aria-checked="true" aria-label="Chaos mode"></span>
+      </div>
+      <span class="badge" id="run-clock"><span class="dot pulse" style="color:var(--green)"></span><span class="mono">00:00</span></span>
+      <button class="btn sm" id="pause-btn">Pause</button>
+      <div class="avatar" title="Simulated fleet">AV</div>
+    </header>
+
+    <main class="main">
+      <!-- ========================================================== fleet -->
+      <section data-view-panel="fleet">
+        <div class="page-head">
+          <div>
+            <div class="eyebrow">Background jobs</div>
+            <h1>Worker fleet</h1>
+            <p class="lede">Five simulated workers over five queues, running the real Queue and WorkerPool.</p>
+          </div>
+          <span class="spacer"></span>
+          <div class="row" style="gap:8px">
+            <button class="btn sm" id="burst-btn">Enqueue 12 jobs</button>
+            <button class="btn primary sm" id="replay-btn">Replay dead letters</button>
+          </div>
+        </div>
+
+        <div class="grid grid-4 kpi-row" id="kpis"></div>
+
+        <div class="grid" style="grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);margin-bottom:12px">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Queue depth</div>
+                <div class="card-sub">jobs waiting to run, sampled every 500ms of virtual time</div>
+              </div>
+              <span class="spacer"></span>
+              <span class="badge gold" id="depth-now">—</span>
+            </div>
+            <div id="depth-chart" style="min-height:150px"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Retry policy</div>
+                <div class="card-sub">full jitter · four attempts</div>
+              </div>
+              <span class="spacer"></span>
+              <span class="badge" id="policy-badge">max 4</span>
+            </div>
+            <div id="policy-schedule" class="col" style="gap:8px"></div>
+            <div class="divider" style="margin:12px 0"></div>
+            <div class="row" style="justify-content:space-between;font-size:12px">
+              <span class="muted">Rate limit</span>
+              <span class="mono" id="rate-limit-label">—</span>
+            </div>
+            <div class="progress thin" style="margin-top:7px"><i id="rate-limit-bar" style="width:100%"></i></div>
+            <div class="row small muted" style="justify-content:space-between;margin-top:9px">
+              <span id="concurrency-label">4 concurrent</span>
+              <span id="lease-label">15s lease</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.8fr)">
+          <div class="card" style="padding:14px">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Workers</div>
+                <div class="card-sub" id="worker-summary">—</div>
+              </div>
+              <span class="spacer"></span>
+              <div class="stepper">
+                <button class="btn icon sm" id="workers-down" aria-label="Remove a worker">−</button>
+                <span class="mono" id="worker-count">5</span>
+                <button class="btn icon sm" id="workers-up" aria-label="Add a worker">+</button>
+              </div>
+            </div>
+            <div id="worker-list" class="col" style="gap:9px"></div>
+          </div>
+
+          <div class="card" style="padding:14px">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Recent jobs</div>
+                <div class="card-sub">newest first; click a row for the stored payload</div>
+              </div>
+              <span class="spacer"></span>
+              <span class="badge mono" id="arrivals-badge">—</span>
+            </div>
+            <div id="jobs-table"></div>
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);margin-top:16px">
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Event log</div><div class="card-sub">claim, completion, retry and dead-letter events</div></div>
+              <span class="spacer"></span>
+              <span class="badge green"><span class="dot pulse"></span>live</span>
+            </div>
+            <div id="event-log" class="event-log"></div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Recurring jobs</div><div class="card-sub">the scheduler enqueues these like any other job</div></div>
+              <span class="spacer"></span>
+              <span class="badge" id="recurring-badge">3 definitions</span>
+            </div>
+            <div id="recurring-list" class="col" style="gap:10px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ dlq -->
+      <section data-view-panel="dlq" hidden>
+        <div class="page-head">
+          <div>
+            <div class="eyebrow">Reliability</div>
+            <h1>Dead-letter queue</h1>
+            <p class="lede">A job lands here after its final allowed attempt. Replay resets the attempt counter and puts it back at the head of the queue — an operator decision, not an automatic retry.</p>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn primary sm" id="replay-all-btn">Replay all</button>
+        </div>
+
+        <div class="grid grid-3" id="dlq-summary" style="margin-bottom:12px"></div>
+
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-head">
+            <div><div class="card-title">Parked jobs</div><div class="card-sub">click a row to inspect the error and payload</div></div>
+            <span class="spacer"></span>
+            <span class="badge red" id="dlq-count-badge">0 parked</span>
+          </div>
+          <div id="dlq-table"></div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)">
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Event log</div><div class="card-sub">same stream as the fleet view</div></div>
+              <span class="spacer"></span>
+              <span class="badge green"><span class="dot pulse"></span>live</span>
+            </div>
+            <div id="dlq-event-log" class="event-log"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Why jobs die</div></div>
+            <div class="col" style="gap:12px">
+              <div class="dlq-note">
+                <span class="badge red">attempt 4/4</span>
+                <p>Chaos mode fails 30% of handler runs. With four attempts and full jitter the chance a job exhausts its budget is roughly 0.3<sup>4</sup> ≈ 0.8% — low, but a fleet processes enough jobs that the DLQ fills anyway.</p>
+              </div>
+              <div class="dlq-note">
+                <span class="badge gold">lease expiry</span>
+                <p>A worker that stops heartbeating leaves a job in running. The 15-second lease returns it to the queue and spends one attempt, so a job that kills its worker cannot loop forever.</p>
+              </div>
+              <div class="dlq-note">
+                <span class="badge">replay</span>
+                <p>Replay is manual on purpose. Automatic DLQ draining hides the one signal you need: which payloads are permanently broken.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="demo-banner">
+    <span class="brand-mark" style="width:20px;height:20px;font-size:10px;border-radius:6px">A</span>
+    <span>Arvion Labs</span>
+    <span class="sep"></span>
+    <a href="https://arvion-technology.github.io/labs/">All projects</a>
+    <span class="sep"></span>
+    <a href="https://github.com/arvion-technology/queuekit" target="_blank" rel="noopener">source</a>
+  </div>
+
+  <script src="arvion.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
