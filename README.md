@@ -2,7 +2,7 @@
 <img src="docs/demo.gif" alt="QueueKit worker fleet dashboard" width="100%" />
 </div>
 
-<sub>Recorded from the live demo — <a href="docs/demo.mp4">MP4</a> · <a href="docs/screenshot.png">static frame</a></sub>
+<sub>Recorded from the live demo, <a href="docs/demo.mp4">MP4</a> · <a href="docs/screenshot.png">static frame</a></sub>
 
 # QueueKit
 
@@ -28,21 +28,21 @@ then replay them.
 
 ## What it does
 
-- **Atomic claim** — one storage call hands a job to exactly one worker. The
+- **Atomic claim**: one storage call hands a job to exactly one worker. The
   in-memory adapter does a compare-and-swap; the SQLite adapter does it in a
   single `UPDATE ... RETURNING`.
-- **Retries with backoff** — base delay, multiplier, cap, attempt limit and three
+- **Retries with backoff**: base delay, multiplier, cap, attempt limit and three
   jitter modes. `full` jitter spreads a retry storm across the whole window
   instead of synchronising every worker.
-- **Concurrency and rate limits** — a global in-process cap, optional per-queue
+- **Concurrency and rate limits**: a global in-process cap, optional per-queue
   caps, and a token bucket for claims.
-- **Delayed and recurring jobs** — `runAt` handles one-off delays; a five-field
+- **Delayed and recurring jobs**: `runAt` handles one-off delays; a five-field
   cron parser and interval definitions feed the same queue as ordinary jobs.
-- **Dead-letter queue** — exhausted jobs are parked with their last error and
+- **Dead-letter queue**: exhausted jobs are parked with their last error and
   payload. Replay is manual and resets the attempt counter.
-- **Lease recovery** — a worker that disappears leaves a job `running`; after the
+- **Lease recovery**: a worker that disappears leaves a job `running`; after the
   lease expires the job returns to the queue and spends one attempt.
-- **CLI** — the same queue on a SQLite file: `init`, `enqueue`, `run`, `stats`,
+- **CLI**: the same queue on a SQLite file: `init`, `enqueue`, `run`, `stats`,
   `dlq list`, `dlq replay`.
 
 ## Screenshots
@@ -98,7 +98,7 @@ A job is a plain object. The fields that matter:
 }
 ```
 
-Ordering is `priority DESC, runAt ASC, createdAt ASC` — priority first, then the
+Ordering is `priority DESC, runAt ASC, createdAt ASC`, priority first, then the
 oldest due job, then insertion order. Both adapters express that as one sort.
 
 ## Quickstart
@@ -181,19 +181,19 @@ npm test
 
 41 tests across six files, all on `node:test`:
 
-- `backoff.test.js` — policy validation, capped doubling, all three jitter modes,
+- `backoff.test.js`: policy validation, capped doubling, all three jitter modes,
   retry-plan exhaustion.
-- `queue.test.js` — FIFO and priority ordering, delayed visibility, retry counts
+- `queue.test.js`: FIFO and priority ordering, delayed visibility, retry counts
   and exact backoff schedule, global and per-queue concurrency, rate limit refill,
   single ownership under two queue instances, duplicate ids, DLQ replay, lease
   expiry, ack/fail invariants, dashboard metrics.
-- `storage-contract.test.js` — the same insert/claim/count/list contract against
+- `storage-contract.test.js`: the same insert/claim/count/list contract against
   `MemoryStorage` and `SqliteStorage`.
-- `scheduler.test.js` — cron parsing, UTC next-fire maths, POSIX OR semantics for
+- `scheduler.test.js`: cron parsing, UTC next-fire maths, POSIX OR semantics for
   day-of-month/day-of-week, interval catch-up behaviour.
-- `worker-metrics.test.js` — pool respects the concurrency cap, retry → dead
+- `worker-metrics.test.js`: pool respects the concurrency cap, retry → dead
   transitions through the pool, drain, resize, per-minute rates.
-- `simulator.test.js` — seeded determinism, chaos → DLQ, pause, recurring
+- `simulator.test.js`: seeded determinism, chaos → DLQ, pause, recurring
   registrations, snapshot shape.
 
 ## Limitations

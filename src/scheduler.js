@@ -1,6 +1,6 @@
 // Delayed and recurring jobs.
 //
-// Delayed jobs need nothing beyond `runAt` in storage — the claim query already
+// Delayed jobs need nothing beyond `runAt` in storage, the claim query already
 // filters on it. Recurring jobs need a definition with a next-fire time, so this
 // module owns a small cron parser and a Scheduler that turns definitions into
 // ordinary queued jobs. Cron fields are evaluated in UTC; that is a deliberate

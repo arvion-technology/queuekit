@@ -27,7 +27,7 @@ const elapsed = (ms) => {
   if (ms < 60_000) return `${(ms / 1_000).toFixed(1)}s`;
   return `${Math.floor(ms / 60_000)}m ${Math.round((ms % 60_000) / 1_000)}s`;
 };
-const title = (name) => (name || "—").replace(/_/g, " ");
+const title = (name) => (name || ", ").replace(/_/g, " ");
 
 function stateBadge(value) {
   return el("span", { class: `badge state-badge ${value}`, text: value });
@@ -208,7 +208,7 @@ function renderDlq(snap) {
     statCard({ label: "Failed attempts", value: fmt.num(attempts), sub: "spent before being parked" }),
     statCard({
       label: "Oldest",
-      value: dead.length ? elapsed(snap.now - dead[dead.length - 1].createdAt) : "—",
+      value: dead.length ? elapsed(snap.now - dead[dead.length - 1].createdAt) : ", ",
       sub: "age of the oldest parked job",
       tone: "blue",
     }),
@@ -222,7 +222,7 @@ function renderDlq(snap) {
           el("span", { style: "font-weight:600;font-size:12.5px", text: title(job.name) }),
           el("span", { class: "small muted", text: ` · ${job.queue}` })),
       },
-      { label: "Error", render: (job) => el("span", { class: "small", style: "color:var(--red)", text: job.lastError || "—" }) },
+      { label: "Error", render: (job) => el("span", { class: "small", style: "color:var(--red)", text: job.lastError || ", " }) },
       { label: "Attempts", width: "84px", align: "right", render: (job) => el("span", { class: "mono", text: `${job.attempts}/${job.maxAttempts}` }) },
       { label: "Age", width: "70px", align: "right", render: (job) => el("span", { class: "mono muted", text: elapsed(snap.now - job.createdAt) }) },
       {

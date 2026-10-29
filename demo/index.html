@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>QueueKit — durable background jobs with retries and a DLQ</title>
+  <title>QueueKit | durable background jobs with retries and a DLQ</title>
   <meta name="description" content="A durable job queue with atomic claim, exponential backoff with jitter, concurrency and rate limits, recurring jobs and a dead-letter queue you can replay." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 9 L91 91 H73 L50 52 L27 91 H9 Z' fill='%23f5c26b'/><circle cx='50' cy='31' r='6.6' fill='%230b0f1a'/><path d='M50 52 L67 90 H33 Z' fill='%230b0f1a'/></svg>" />
   <link rel="stylesheet" href="arvion.css" />
@@ -66,7 +66,7 @@
                 <div class="card-sub">jobs waiting to run, sampled every 500ms of virtual time</div>
               </div>
               <span class="spacer"></span>
-              <span class="badge gold" id="depth-now">—</span>
+              <span class="badge gold" id="depth-now">, </span>
             </div>
             <div id="depth-chart" style="min-height:150px"></div>
           </div>
@@ -84,7 +84,7 @@
             <div class="divider" style="margin:12px 0"></div>
             <div class="row" style="justify-content:space-between;font-size:12px">
               <span class="muted">Rate limit</span>
-              <span class="mono" id="rate-limit-label">—</span>
+              <span class="mono" id="rate-limit-label">, </span>
             </div>
             <div class="progress thin" style="margin-top:7px"><i id="rate-limit-bar" style="width:100%"></i></div>
             <div class="row small muted" style="justify-content:space-between;margin-top:9px">
@@ -99,7 +99,7 @@
             <div class="card-head">
               <div>
                 <div class="card-title">Workers</div>
-                <div class="card-sub" id="worker-summary">—</div>
+                <div class="card-sub" id="worker-summary">, </div>
               </div>
               <span class="spacer"></span>
               <div class="stepper">
@@ -118,7 +118,7 @@
                 <div class="card-sub">newest first; click a row for the stored payload</div>
               </div>
               <span class="spacer"></span>
-              <span class="badge mono" id="arrivals-badge">—</span>
+              <span class="badge mono" id="arrivals-badge">, </span>
             </div>
             <div id="jobs-table"></div>
           </div>
@@ -150,7 +150,7 @@
           <div>
             <div class="eyebrow">Reliability</div>
             <h1>Dead-letter queue</h1>
-            <p class="lede">A job lands here after its final allowed attempt. Replay resets the attempt counter and puts it back at the head of the queue — an operator decision, not an automatic retry.</p>
+            <p class="lede">A job lands here after its final allowed attempt. Replay resets the attempt counter and puts it back at the head of the queue, an operator decision, not an automatic retry.</p>
           </div>
           <span class="spacer"></span>
           <button class="btn primary sm" id="replay-all-btn">Replay all</button>
@@ -181,7 +181,7 @@
             <div class="col" style="gap:12px">
               <div class="dlq-note">
                 <span class="badge red">attempt 4/4</span>
-                <p>Chaos mode fails 30% of handler runs. With four attempts and full jitter the chance a job exhausts its budget is roughly 0.3<sup>4</sup> ≈ 0.8% — low, but a fleet processes enough jobs that the DLQ fills anyway.</p>
+                <p>Chaos mode fails 30% of handler runs. With four attempts and full jitter the chance a job exhausts its budget is roughly 0.3<sup>4</sup> ≈ 0.8%, low, but a fleet processes enough jobs that the DLQ fills anyway.</p>
               </div>
               <div class="dlq-note">
                 <span class="badge gold">lease expiry</span>

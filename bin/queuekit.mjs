@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// QueueKit CLI — a durable queue in one SQLite file.
+// QueueKit CLI, a durable queue in one SQLite file.
 //
 //   node bin/queuekit.mjs init
 //   node bin/queuekit.mjs enqueue render_invoice_pdf --payload '{"id":42}'
@@ -46,7 +46,7 @@ function open() {
 }
 
 /* Handlers stand in for real work. They return a small result object, which is
- * stored on the job — useful when debugging "what did this actually do?". */
+ * stored on the job, useful when debugging "what did this actually do?". */
 const HANDLERS = {
   send_welcome_email: (job) => ({ deliveredTo: job.payload?.email ?? "demo@example.test", template: "welcome" }),
   send_receipt: (job) => ({ receipt: `rcpt_${job.id.slice(-6)}` }),
@@ -211,7 +211,7 @@ async function cmdDlq() {
 
 function help() {
   const exists = existsSync(dbPath);
-  console.log(`QueueKit — durable job queue in ${exists ? dbPath : "(no database yet)"}
+  console.log(`QueueKit, durable job queue in ${exists ? dbPath : "(no database yet)"}
 
 usage:
   queuekit init                            create the database

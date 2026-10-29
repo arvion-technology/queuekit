@@ -61,9 +61,9 @@ function unit(random) {
 }
 
 /**
- * full  : delay * u            — spreads a retry storm over the whole window
- * equal : delay/2 + (delay/2)*u — keeps a floor, still decorrelates workers
- * none  : delay                 — deterministic, for tests and fixed schedules
+ * full  : delay * u, spreads a retry storm over the whole window
+ * equal : delay/2 + (delay/2)*u, keeps a floor, still decorrelates workers
+ * none  : delay, deterministic, for tests and fixed schedules
  */
 export function applyJitter(delayMs, jitter, random = Math.random) {
   if (jitter === "none") return delayMs;
@@ -80,7 +80,7 @@ export function retryDelayMs(attempt, policy = DEFAULT_BACKOFF, random = Math.ra
 
 /**
  * Everything a caller needs to persist: which attempt is next and when it runs.
- * Returns `null` when the attempt budget is already spent — that caller should
+ * Returns `null` when the attempt budget is already spent, that caller should
  * move the job to the dead-letter queue instead.
  */
 export function retryPlan(failedAttempt, policy = DEFAULT_BACKOFF, now = Date.now(), random = Math.random) {

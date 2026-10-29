@@ -119,7 +119,7 @@ export class Queue {
   /**
    * True when another job may start right now. The global cap keeps the whole
    * process bounded; a per-queue cap keeps one noisy queue from eating it. Both
-   * are checked in-process only — see the README on distributed concurrency.
+   * are checked in-process only, see the README on distributed concurrency.
    */
   canStart(queue = "default") {
     const now = this.now();
